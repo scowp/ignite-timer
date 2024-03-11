@@ -1,20 +1,60 @@
 import { Play } from "phosphor-react";
 import { CountdownContainer, FormContainer, HomeContainer, MinutesAmoutInput, Separator, StartCountdownButton, TaskInput } from "./style";
+import { useForm } from "react-hook-form";
+import { zodResolver} from '@hookform/resolvers/zod'
+import * as zod from 'zod'
+
+const newCycleFormValidationSchema = zod.object({
+    task: zod.string().min(1, 'Informe a tarefa'),
+    minutesAmout: zod.number().min(5).max(60)
+})
+
+type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
 
 export default function Home() {
+    const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
+        resolver: zodResolver(newCycleFormValidationSchema),
+        defaultValues: {
+            task: '',
+            minutesAmout: 0
+        }
+    })
+
+    function handleCreateNewCycle(data: NewCycleFormData){
+        console.log(data)
+        reset()
+    }
+
+    const task = watch('task')
+    const isSubmitDisabled = !task
+
     return (
         <HomeContainer>
-            <form action="">
+            <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
                 <FormContainer>
                     <label htmlFor="task">Vou trabalhar em</label>
-                    <TaskInput list="task-suggestions" type="text" id="task" placeholder="Dê um nome para o seu projeto"/>
+                    <TaskInput 
+                        list="task-suggestions" 
+                        type="text" 
+                        id="task" 
+                        placeholder="Dê um nome para o seu projeto"
+                        {...register('task')}
+                    />
                     <datalist id="task-suggestions">
                         <option value="Projeto1"></option>
                         <option value="Projeto2"></option>
                         <option value="Projeto3"></option>
                     </datalist>
                     <label htmlFor="minutesAmount">Durante</label>
-                    <MinutesAmoutInput  min={5} max={60} step={5} type="number" id="minutesAmount" placeholder="00" />
+                    <MinutesAmoutInput  
+                        min={5} 
+                        max={60} 
+                        step={5} 
+                        type="number" 
+                        id="minutesAmount" 
+                        placeholder="00" 
+                        {...register('minutesAmout', { valueAsNumber: true })}
+                    />
                     <span>minutos.</span>
                 </FormContainer>
 
@@ -27,7 +67,7 @@ export default function Home() {
                     <span>0</span>
                 </CountdownContainer>
 
-                <StartCountdownButton disabled type="submit"><Play size={24}/>Começar</StartCountdownButton>
+                <StartCountdownButton disabled={isSubmitDisabled} type="submit"><Play size={24}/>Começar</StartCountdownButton>
             </form>
         </HomeContainer>
     )
