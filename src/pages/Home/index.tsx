@@ -38,11 +38,15 @@ export default function Home() {
         }
 
         setCycles(state => [...state, newCycle])
-        setActiveCycleId
+        setActiveCycleId(newCycle.id)
 
         console.log(data)
         reset()
     }
+
+    const activeCycle = cycles.find(cycle => cycle.id == activeCycleId)
+
+    console.log(activeCycle)
 
     const task = watch('task')
     const isSubmitDisabled = !task
